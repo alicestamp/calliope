@@ -63,6 +63,13 @@ def load_constraints(backend_model):
             rule=storage_discharge_depth_constraint_rule
         )
 
+    if 'loc_techs_storage_degradation_constraint' in sets:
+        backend_model.storage_degradation_constraint = po.Constraint(
+            backend_model.loc_techs_storage_degradation_constraint,
+            backend_model.timesteps,
+            rule=storage_degradation_constraint_rule
+        )
+
     if 'loc_tech_carriers_ramping_constraint' in sets:
         backend_model.ramping_up_constraint = po.Constraint(
             backend_model.loc_tech_carriers_ramping_constraint, backend_model.timesteps,
@@ -209,6 +216,17 @@ def storage_discharge_depth_constraint_rule(backend_model, loc_tech, timestep):
     """
     storage_discharge_depth = get_param(backend_model, 'storage_discharge_depth', loc_tech)
     return backend_model.storage[loc_tech, timestep] >= storage_discharge_depth * backend_model.storage_cap[loc_tech]
+
+
+def storage_degradation_constraint_rule(backend_model, loc_tech, timestep):
+
+    degradation = get_param(backend_model, 'storage_degradation', loc_tech)
+
+    # if carrier prod > 0 and if storage < 0.9:
+    #  return storage_cap = storage_cap * min( carrier prod / storage_cap, 0.75) * degradation
+    # else:
+    #   return nothing
+    return
 
 
 def ramping_up_constraint_rule(backend_model, loc_tech_carrier, timestep):
