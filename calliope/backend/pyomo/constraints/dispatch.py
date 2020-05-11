@@ -222,11 +222,17 @@ def storage_degradation_constraint_rule(backend_model, loc_tech, timestep):
 
     degradation = get_param(backend_model, 'storage_degradation', loc_tech)
 
-    # if carrier prod > 0 and if storage < 0.9:
-    #  return storage_cap = storage_cap * min( carrier prod / storage_cap, 0.75) * degradation
+    # storage cap needs to be a time variable parameter?
+    # in the same way that storage is - can vary throughout the series
+
+    # if backend_model.carrier_prod[loc_tech, timestep] > 0
+    # and if backend_model.storage[loc_tech, timestep] < 0.9:
+    #  return storage_cap = storage_cap * degradation * min(
+    #    backend_model.carrier_prod[loc_tech, timestep] / backend_model.storage_cap[loc_tech], 0.75
+    #   )
     # else:
     #   return nothing
-    return
+    return backend_model.storage_cap[loc_tech] = backend_model.storage_cap[loc_tech]
 
 
 def ramping_up_constraint_rule(backend_model, loc_tech_carrier, timestep):
