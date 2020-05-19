@@ -300,6 +300,12 @@ def generate_loc_tech_sets(model_run, simple_sets):
                for i in loc_techs_config[k].constraints.keys_nested())
     ) | sets.loc_techs_storage
 
+    sets.loc_techs_storage_degradation = set(
+        k for k in sets.loc_techs_storage
+        if any('storage_degradation' in i
+               for i in loc_techs_config[k].constraints.keys_nested())
+    )
+
     # technologies that specify a finite resource
     sets.loc_techs_finite_resource = set(
         k for k in sets.loc_techs_non_transmission

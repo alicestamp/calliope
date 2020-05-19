@@ -164,10 +164,7 @@ def generate_constraint_sets(model_run):
         if i.rsplit('::', 1)[0] in sets.loc_techs_ramping
     ]
 
-    constraint_sets['loc_techs_storage_degradation_constraint'] = [
-        i for i in sets.loc_techs_store
-        if constraint_exists(model_run, i, 'constraints.storage_degradation')
-    ]
+    constraint_sets['loc_techs_storage_degradation_constraint'] = sets.loc_techs_storage_degradation
 
     # clustering-specific dispatch constraints
     if (model_run.model.get_key('time.function', None) == 'apply_clustering' and

@@ -31,6 +31,7 @@ def initialize_decision_variables(backend_model):
     operating\\_units     loc_techs_milp, timesteps
     unmet\\_demand        loc_carriers, timesteps
     unused\\_supply       loc_carriers, timesteps
+    degraded_storage_cap  loc_techs_storage_degradation, timesteps
     ==================== ========================================
 
     """
@@ -49,6 +50,10 @@ def initialize_decision_variables(backend_model):
     ##
     # Conditionally assigned variables
     ##
+
+    if 'loc_techs_storage_degradation' in model_data_dict['sets']:
+        backend_model.degraded_storage_cap = po.Var(backend_model.loc_techs_storage_degradation, backend_model.timesteps, within=po.NonNegativeReals)
+
 
     if 'loc_techs_area' in model_data_dict['sets'] and run_config['mode'] != 'operate':
         backend_model.resource_area = po.Var(backend_model.loc_techs_area, within=po.NonNegativeReals)
