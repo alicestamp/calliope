@@ -225,37 +225,18 @@ def storage_discharge_depth_constraint_rule(backend_model, loc_tech, timestep):
 
 
 def storage_degradation_constraint_rule(backend_model, loc_tech, timestep):
-
-    # find previous timestep
-    # set first timestep's value to 1
-
-    # choice - either do this as a fraction throughout or as an absolute
-    # currently calculating as an absolute
-
-    degradation_delta = get_param(backend_model, 'storage_degradation', loc_tech)
-    degradation_lower = get_param(backend_model, 'storage_degradation_swing_lower', loc_tech)
-    degradation_upper = get_param(backend_model, 'storage_degradation_swing_upper', loc_tech)
-
-    deg_level = backend_model.degraded_storage_cap[loc_tech, previous_timestep]
-    storage_previous = backend_model.storage[loc_tech, previous_timestep]
-    storage_current = backend_model.storage[loc_tech, timestep]
-    storage_cap = backend_model.storage_cap[loc_tech]
-
-    # if we're in the first timestep, deg_level = 1
-    # at what point during the timestep does carrier_prod happen?
-    if backend_model.carrier_prod[loc_tech, timestep] > 0 and backend_model.storage[loc_tech, timestep] < degradation_upper and backend_model.storage[loc_tech, previous_timestep] > degradation_lower:
-        # if the battery is already 66% degraded is calc based on degradation level or original cap?
-        degradation = min([storage_previous / storage_cap, degradation_upper]) * degradation_delta
-        - max([storage_current / storage_cap, degradation_lower])
+    model_data_dict = backend_model.__calliope_model_data['data']
+    loc_tech_carrier = model_data_dict['lookup_loc_techs'][loc_tech]
+    if backend_model.timesteps.order_dict[timestep] == 0:
+        return backend_model.degraded_storage[loc_tech, timestep] == 0
     else:
-      degradation = 1
-
-    return backend_model.degraded_storage_cap[loc_tech, timestep] == deg_level * degradation
+        previous_step = get_previous_timestep(backend_model.timesteps, timestep)
+    degradation_delta = get_param(backend_model, 'storage_degradation', loc_tech)
+    return backend_model.degraded_storage[loc_tech, timestep] == backend_model.carrier_prod[loc_tech_carrier, previous_step] * degradation_delta
 
 
 def storage_degradation_constraint_rule_2(backend_model, loc_tech, timestep):
-
-    return backend_model.storage[loc_tech, timestep] <= backend_model.degraded_storage_cap[loc_tech, timestep]
+    return backend_model.storage[loc_tech, timestep] <= backend_model.storage_cap[loc_tech] - backend_model.degraded_storage[loc_tech, timestep]
 
 def ramping_up_constraint_rule(backend_model, loc_tech_carrier, timestep):
     """
